@@ -1,8 +1,11 @@
 from django.urls import path
-from .views import ListaExerciciosAPIView, ExercicioAPIView
+from .views import (
+    ListCreateExercicioAPIView as ExerciciosAPIView,
+    DetailUpdateDeleteExercicio as ExercicioAPIView,
+)
 
 
 urlpatterns = [
-    path("exercicios/<int:pk>", ExercicioAPIView.as_view(), name="exercicio"),
-    path("exercicios/", ListaExerciciosAPIView.as_view(), name="exercicios"),
+    path("<int:pk>", ExercicioAPIView.as_view(), name="exercicio"),
+    path("", ExerciciosAPIView.as_view(), name="exercicios"),
 ]

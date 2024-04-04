@@ -1,49 +1,61 @@
-# from rest_framework.views import APIView
-from rest_framework import generics, permissions
+from django.shortcuts import get_list_or_404, get_object_or_404
+from rest_framework import status, permissions, authentication
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from treinos.serializers import ExercicioSerializer
 from treinos.models import Exercicio
+from erickgym.permissions import IsOwnerOrReadOnly
 
 
-# CBV --> Class Based View
-class ListaExerciciosAPIView(generics.ListCreateAPIView):
-    queryset = Exercicio.objects.all()
-    serializer_class = ExercicioSerializer
+class ListCreateExercicioAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    authentication_classes = [
+        authentication.TokenAuthentication,
+        authentication.SessionAuthentication,
+    ]
 
-    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request, format=None):
+        exercicios = get_list_or_404(Exercicio)
+        serialize = ExercicioSerializer(exercicios, many=True)
+        return Response(serialize.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        exercicio = ExercicioSerializer(request.data)
+        if exercicio.is_valid():
+            exercicio.save()
+            return Response(
+                "Exercicio registrado com sucesso!",
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            return Response(exercicio.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ExercicioAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Exercicio.objects.all()
-    serializer_class = ExercicioSerializer
+class DetailUpdateDeleteExercicio(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [
+        authentication.TokenAuthentication,
+        authentication.SessionAuthentication,
+    ]
 
+    def get(self, request, pk, format=None):
+        """Retorna um exericio específico"""
+        exercicio = get_object_or_404(Exercicio, id=pk)
+        serializer = ExercicioSerializer(exercicio)
+        return Response(serializer.data)
 
-# class ListaExerciciosView(APIView):
+    def put(self, request, pk):
+        exercicio = get_object_or_404(Exercicio, id=pk)
+        serializer = ExercicioSerializer(exercicio, data=request.data)
 
-#     def get(self, request):
-#         exercicios = Exercicio.objects.all()
-#         serializer = ExercicioSerializer(exercicios, many=True)
-#         return Response(serializer.data, status=200)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
-#     def post(self, request):
-#         serializer = ExercicioSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=201)
-#         else:
-#             return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#     def put(self, request, pk):  # Preferível usar put ao invés de patch
-#         exercicio = get_object_or_404(pk)
-#         serializer = ExercicioSerializer(exercicio, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors, status=400)
-
-#     def delete(self, request, pk):
-#         exercicio = get_object_or_404(pk)
-#         exercicio.delete()
-#         return Response({"message": "Exercício excluído"}, status=204)
+    def delete(self, request, pk):
+        exercicio = get_object_or_404(Exercicio, id=pk)
+        exercicio.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
