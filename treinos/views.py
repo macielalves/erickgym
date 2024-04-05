@@ -4,11 +4,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from treinos.serializers import ExercicioSerializer
 from treinos.models import Exercicio
-from erickgym.permissions import IsOwnerOrReadOnly
+from erickgym.permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 
 
 class ListCreateExercicioAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = [
         authentication.TokenAuthentication,
         authentication.SessionAuthentication,
@@ -20,7 +20,7 @@ class ListCreateExercicioAPIView(APIView):
         return Response(serialize.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        exercicio = ExercicioSerializer(request.data)
+        exercicio = ExercicioSerializer(data=request.data)
         if exercicio.is_valid():
             exercicio.save()
             return Response(
@@ -32,7 +32,7 @@ class ListCreateExercicioAPIView(APIView):
 
 
 class DetailUpdateDeleteExercicio(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly | IsAdminOrReadOnly]
 
     authentication_classes = [
         authentication.TokenAuthentication,
