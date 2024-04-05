@@ -3,6 +3,11 @@
 
 ### Endpoints API:
 
+
+#### Root:
+<https://erickgym-server-latest.onrender.com/>
+
+
 #### Exercicios
 
 |  METHOD  |        PATH         | BODY            | DATA        | STATUS CODE      | DESCRIÇÃO              |
