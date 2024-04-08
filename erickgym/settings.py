@@ -7,8 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG") == "True"
 # ALLOWED=hostname,webhostname,etc
-# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="0.0.0.0").split(",")
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="0.0.0.0").split(",")
+# ALLOWED_HOSTS = []
 
 RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", "")
 if RENDER_EXTERNAL_HOSTNAME:
