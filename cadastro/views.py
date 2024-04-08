@@ -1,52 +1,54 @@
-from rest_framework import generics, authentication
-from cadastro.serializers import AlunosSerializers, ProfessoresSerializers
-from cadastro.models import Alunos, Professor
-from erickgym.permissions import IsAdmin, IsAdminOrReadOnly, IsOwner
+from cadastro.serializers import (
+    AlunoSerializer,
+    AlunoSerializerBasic,
+    ProfessorSerializer,
+    ProfessorSerializerBasic,
+)
+from cadastro.models import Professor, Aluno
+from erickgym.permissions import IsAdmin, IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
+
+
+class ListAlunosAPIView(ReadOnlyModelViewSet):
+    queryset = Aluno.objects.all()
+    serializer_class = AlunoSerializerBasic
+
+
+class ListProfessoresAPIView(ReadOnlyModelViewSet):
+    queryset = Professor.objects.all()
+    serializer_class = ProfessorSerializerBasic
 
 
 class ListCreateAlunosAPIView(generics.ListCreateAPIView):
 
-    queryset = Alunos.objects.all()
-    serializer_class = AlunosSerializers
+    queryset = Aluno.objects.all()
+    serializer_class = AlunoSerializer
 
-    permission_classes = [IsAdminOrReadOnly]
-    authentication_classes = [
-        authentication.TokenAuthentication,
-        authentication.SessionAuthentication,
-    ]
+    permission_classes = [IsAdminOrReadOnly | IsOwnerOrReadOnly]
 
-
-class RetrieveUpdateDestryAlunoAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Alunos.objects.all()
-    serializer_class = AlunosSerializers
-
-    permission_classes = [IsAdmin | IsOwner]
-
-    authentication_classes = [
-        authentication.TokenAuthentication,
-        authentication.SessionAuthentication,
-    ]
+    def get(self, request):
+        serializer = AlunoSerializerBasic(self.get_queryset(), many=True)
+        return Response(serializer.data)
 
 
-class ListCreateProfessor(generics.ListCreateAPIView):
-    queryset = Professor.objects.all()
-    serializer_class = ProfessoresSerializers
-
-    permission_classes = [IsAdminOrReadOnly]
-
-    authentication_classes = [
-        authentication.TokenAuthentication,
-        authentication.SessionAuthentication,
-    ]
-
-
-class RetrieveUpdateDestroyProfessor(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Professor.objects.all()
-    serializer_class = ProfessoresSerializers
+class RetrieveUpdateDestroyAlunoAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Aluno.objects.all()
+    serializer_class = AlunoSerializer
 
     permission_classes = [IsAdmin | IsOwner]
 
-    authentication_classes = [
-        authentication.TokenAuthentication,
-        authentication.SessionAuthentication,
-    ]
+
+class ListCreateProfessorAPIView(generics.ListCreateAPIView):
+    queryset = Professor.objects.all()
+    serializer_class = ProfessorSerializer
+
+    permission_classes = [IsAdminOrReadOnly]
+
+
+class RetrieveUpdateDestroyProfessorAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Professor.objects.all()
+    serializer_class = ProfessorSerializer
+
+    permission_classes = [IsAdmin | IsOwner]

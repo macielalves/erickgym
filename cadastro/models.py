@@ -20,16 +20,12 @@ class Base(models.Model):
         abstract = True
 
 
-class Alunos(Base):
+class Aluno(Base):
     foto = models.ImageField(upload_to="img/alunos", blank=True, null=True)
-
-    class Meta:
-        verbose_name = "Aluno"
-        verbose_name_plural = "Alunos"
 
 
 class Professor(Base):
-    foto = models.ImageField(upload_to="img/professores")
+    foto = models.ImageField(upload_to="img/professores", blank=True, null=True)
     area_de_atuação = models.CharField(max_length=50)
 
     class Meta:

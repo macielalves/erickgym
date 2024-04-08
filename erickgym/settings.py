@@ -1,47 +1,44 @@
 from decouple import config
-from corsheaders.defaults import default_headers
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY")
-DEBUG = bool(int(config("DEBUG", 0)))
+DEBUG = config("DEBUG") == "True"
 # ALLOWED=hostname,webhostname,etc
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="0.0.0.0").split(",")
+# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="0.0.0.0").split(",")
+ALLOWED_HOSTS = []
 
 RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", "")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.extend(RENDER_EXTERNAL_HOSTNAME)
 
-CORS_ALLOW_HEADERS = (*default_headers,)
+# CORS_ALLOW_HEADERS = (*default_headers,)
 
-CORS_ALLOWED_ORIGINS = [
-    "https://127.0.0.1",
-]
+CORS_ALLOWED_ORIGINS = []
 
-CORS_ALLOWED_EXTERNAL_ORIGINS = config(
-    "CORS_ALLOWED_EXTERNAL_ORIGINS", "http://0.0.0.0"
-).split(",")
+CORS_ALLOWED_EXTERNAL_ORIGINS = config("CORS_ALLOWED_EXTERNAL_ORIGINS", False)
 
 if CORS_ALLOWED_EXTERNAL_ORIGINS:
-    CORS_ALLOWED_ORIGINS.extend(CORS_ALLOWED_EXTERNAL_ORIGINS)
+    CORS_ALLOWED_ORIGINS.extend(CORS_ALLOWED_EXTERNAL_ORIGINS.split(","))
 
 
 CSRF_TRUSTED_ORIGINS = [config("CORS")]
+CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
-    "treinos.apps.TreinosConfig",
-    "cadastro.apps.CadastroConfig",
+    "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
-    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "treinos.apps.TreinosConfig",
+    "cadastro.apps.CadastroConfig",
 ]
 
 MIDDLEWARE = [
@@ -128,5 +125,11 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 5,
 }

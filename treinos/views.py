@@ -1,18 +1,15 @@
 from django.shortcuts import get_list_or_404, get_object_or_404
-from rest_framework import status, permissions, authentication
+from rest_framework import status, permissions
 from rest_framework.views import APIView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.response import Response
-from treinos.serializers import ExercicioSerializer
+from treinos.serializers import ExercicioSerializer, ExercicioSerializerToRead
 from treinos.models import Exercicio
 from erickgym.permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 
 
 class ListCreateExercicioAPIView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    authentication_classes = [
-        authentication.TokenAuthentication,
-        authentication.SessionAuthentication,
-    ]
 
     def get(self, request, format=None):
         exercicios = get_list_or_404(Exercicio)
@@ -20,24 +17,19 @@ class ListCreateExercicioAPIView(APIView):
         return Response(serialize.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        exercicio = ExercicioSerializer(data=request.data)
-        if exercicio.is_valid():
-            exercicio.save()
+        serializer = ExercicioSerializer(data={"user": request.user.id, **request.data})
+        if serializer.is_valid():
+            serializer.save()
             return Response(
-                "Exercicio registrado com sucesso!",
+                {"details": "Exercício registrado com sucesso!"},
                 status=status.HTTP_201_CREATED,
             )
         else:
-            return Response(exercicio.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DetailUpdateDeleteExercicio(APIView):
     permission_classes = [IsOwnerOrReadOnly | IsAdminOrReadOnly]
-
-    authentication_classes = [
-        authentication.TokenAuthentication,
-        authentication.SessionAuthentication,
-    ]
 
     def get(self, request, pk, format=None):
         """Retorna um exericio específico"""
@@ -59,3 +51,8 @@ class DetailUpdateDeleteExercicio(APIView):
         exercicio = get_object_or_404(Exercicio, id=pk)
         exercicio.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ListExerciciosAPIView(ReadOnlyModelViewSet):
+    queryset = Exercicio.objects.all()
+    serializer_class = ExercicioSerializerToRead

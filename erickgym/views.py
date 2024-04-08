@@ -7,7 +7,6 @@ from rest_framework.permissions import (
 from rest_framework.authentication import (
     TokenAuthentication,
     SessionAuthentication,
-    BasicAuthentication,
 )
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -31,7 +30,6 @@ class UserViewSet(ModelViewSet):
 
 @api_view(["POST"])
 @permission_classes([AllowPOST])
-@authentication_classes([BasicAuthentication])
 def login(request):
     user = get_object_or_404(User, username=request.data.get("username"))
     if not user.check_password(request.data.get("password")):
@@ -45,7 +43,6 @@ def login(request):
 
 @api_view(["POST"])
 @permission_classes([AllowPOST])
-@authentication_classes([BasicAuthentication])
 def singup(request):
     serializer = CommomUserSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):

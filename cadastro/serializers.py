@@ -1,14 +1,26 @@
 from rest_framework.serializers import ModelSerializer
-from cadastro.models import Alunos, Professor
+from cadastro.models import Aluno, Professor
 
 
-class AlunosSerializers(ModelSerializer):
+class AlunoSerializer(ModelSerializer):
     class Meta:
-        model = Alunos
+        model = Aluno
         fields = "__all__"
 
 
-class ProfessoresSerializers(ModelSerializer):
+class AlunoSerializerBasic(ModelSerializer):
+    class Meta:
+        model = Aluno
+        fields = ["id", "nome"]
+
+
+class ProfessorSerializer(ModelSerializer):
     class Meta(object):
         model = Professor
         fields = "__all__"
+
+
+class ProfessorSerializerBasic(ModelSerializer):
+    class Meta:
+        model = Professor
+        fields = ["id", "nome", "area_de_atuação"]  # teste com utf-8

@@ -11,4 +11,11 @@ class ExercicioSerializer(ModelSerializer):
             "descricao",
             "ativo",
             "idade_minima_aluno",
+            "user",
         )
+
+
+class ExercicioSerializerToRead(ExercicioSerializer):
+    class Meta:
+        model = Exercicio
+        fields = ["id", "nome", "descricao"]
