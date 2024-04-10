@@ -30,8 +30,13 @@ class UserViewSet(ModelViewSet):
 
 @api_view(["POST"])
 @permission_classes([AllowPOST])
-def login(request):
-    user = get_object_or_404(User, username=request.data.get("username"))
+def singin(request):
+    try:
+        user = User.objects.get(username=request.data.get("username"))
+    # user = get_object_or_404(User, username=request.data.get("username"))
+    except User.DoesNotExist:
+        return Response({"error": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
     if not user.check_password(request.data.get("password")):
         return Response({"details": "Not Found."}, status=status.HTTP_404_NOT_FOUND)
     token, created = Token.objects.get_or_create(user=user)
@@ -56,7 +61,7 @@ def singup(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([])
+@authentication_classes([])
 def test_token(request):
     return Response({f"authenticated to {request.user.username}"})

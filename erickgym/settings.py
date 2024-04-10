@@ -24,7 +24,7 @@ if CORS_ALLOWED_EXTERNAL_ORIGINS:
     CORS_ALLOWED_ORIGINS.extend(CORS_ALLOWED_EXTERNAL_ORIGINS.split(","))
 
 
-CSRF_TRUSTED_ORIGINS = [config("CORS")]
+CSRF_TRUSTED_ORIGINS = [config("CORS_TRUSTED")]
 CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
@@ -124,12 +124,11 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 5,
+    "PAGE_SIZE": 20,
 }
